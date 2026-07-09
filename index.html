@@ -1,100 +1,168 @@
-<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>공장도착 원가 계산기</title>
-<style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#d7deea;--blue:#2563eb;--blue2:#1d4ed8;--red:#dc2626;--green:#15803d;--soft:#f8fafc}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,'Malgun Gothic',sans-serif}header{background:#fff;color:var(--text);padding:14px 22px;position:sticky;top:0;z-index:20;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(15,23,42,.06)}.brand{display:flex;align-items:center;gap:14px}.brand .logo{height:56px;width:auto;display:block;object-fit:contain}.brand h1{margin:0 0 4px;font-size:24px;color:#111827}.copyright{margin:0;color:#6b7280;font-size:13px}main{max-width:1280px;margin:0 auto;padding:18px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tab{padding:10px 15px;border:1px solid #cfd6e4;border-radius:999px;background:white;cursor:pointer;font-weight:800;touch-action:manipulation}.tab.active{background:var(--blue);color:white;border-color:var(--blue)}.section{display:none}.section.active{display:block}.grid{display:grid;grid-template-columns:1.12fr .88fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.04)}h2{font-size:18px;margin:0 0 14px}.row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:800}input,select,textarea{width:100%;padding:10px;border:1px solid #cfd6e4;border-radius:10px;font-size:14px;background:white}input[readonly]{background:#f3f4f6}textarea{min-height:70px;resize:vertical}.btn{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:900;background:#e2e8f0;color:#111827;touch-action:manipulation}.btn.primary{background:var(--blue);color:#fff}.btn.primary:hover{background:var(--blue2)}.btn.danger{background:#fee2e2;color:#991b1b}.btn.green{background:#dcfce7;color:#166534}.btn.small{padding:6px 9px;font-size:12px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.right{margin-left:auto}.muted{font-size:12px;color:var(--muted)}.sync{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:800}.sync.error{background:#fee2e2;color:#991b1b}.item-card{border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-bottom:10px;background:#fbfdff}.item-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}.item-no{font-weight:900;color:#334155}.result{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.box{background:var(--soft);border:1px solid #e2e8f0;border-radius:12px;padding:12px}.box b{display:block;font-size:12px;color:#64748b;margin-bottom:4px}.box span{font-size:18px;font-weight:900}.box.total{background:#eff6ff;border-color:#bfdbfe}.box.warn{background:#fff7ed;border-color:#fed7aa}.box.green{background:#f0fdf4;border-color:#bbf7d0}table{width:100%;border-collapse:collapse;background:white;font-size:13px}th,td{border-bottom:1px solid #e5e7eb;padding:9px;text-align:left;vertical-align:middle}th{background:#f8fafc;color:#475569;font-size:12px}.num{text-align:right}.nowrap{white-space:nowrap}@media(max-width:1000px){.grid,.row,.row2,.row3{grid-template-columns:1fr}.result{grid-template-columns:1fr}main{padding:10px}header{padding:12px 14px}.brand{align-items:flex-start}.brand .logo{height:48px}.brand h1{font-size:20px}.right{margin-left:0}}
-</style>
-</head>
-<body>
-<header>
-  <div class="brand">
-    <img src="ing_logo.jpg" alt="ING CO., LTD. logo" class="logo">
-    <div>
-      <h1>공장도착 원가 계산기 <span id="syncStatus" class="sync">Firestore 연결 중</span></h1>
-      <div class="copyright">Copyright © ING CO., LTD. All rights reserved.</div>
-    </div>
-  </div>
-</header>
-<main>
-  <div class="tabs">
-    <button type="button" class="tab active" onclick="showTab('calc')">계산기</button>
-    <button type="button" class="tab" onclick="showTab('hs')">HS CODE 저장</button>
-    <button type="button" class="tab" onclick="showTab('board')">보드 변환</button>
-    <button type="button" class="tab" onclick="showTab('quotes')">견적 저장/조회</button>
-  </div>
+  const vatRate=num($('vatRate'))/100;
+  const taxable=product+ocean+china;
+  const duty=items.reduce((sum,it)=>sum + (taxable*(product ? it.amount/product : 0))*((Number(it.dutyRate)||0)/100),0);
+  const commission=(product+ocean+china)*marginRate;
+  const importCost=ocean+china+domestic+customsFee;
+  const supply=product+ocean+china+duty+domestic+customsFee+commission;
+  const vat=supply*vatRate;
+  const total=supply+vat;
+  const depositAmount=total*((num($('depositPercent'))||0)/100);
+  const balanceAmount=total*((num($('balancePercent'))||0)/100);
+  $('depositAmount').value=money(depositAmount);
+  $('balanceAmount').value=money(balanceAmount);
+  itemCards().forEach((card,i)=>card.querySelector('.amount').value=money(items[i].amount));
+  $('rDuty').textContent=money(duty); $('rImportCost').textContent=money(importCost); $('rCommission').textContent=money(commission); $('rSupply').textContent=money(supply); $('rVat').textContent=money(vat); $('rTotal').textContent=money(total);
+  const rb=$('itemResult').querySelector('tbody'); rb.innerHTML='';
+  items.forEach(it=>{
+    const share=product ? it.amount/product : 0;
+    const itemTotal=it.amount + (total-product)*share;
+    const vatUnit=it.qty ? itemTotal/it.qty : 0;
+    it.vatIncludedTotal=itemTotal;
+    it.vatIncludedUnit=vatUnit;
+    rb.insertAdjacentHTML('beforeend',`<tr><td>${esc(it.itemName||'-')}</td><td>${fmtInput(it.qty)}</td><td>${esc(it.unit||'')}</td><td class="num">${money(it.amount)}</td><td class="num">${money(itemTotal)}</td><td class="num">${money(vatUnit)}</td></tr>`);
+  });
+  return {items,product,taxable,duty,importCost,commission,supply,vat,total,totalQty,china,ocean,customsFee,domestic,marginRate:marginRate*100,vatRate:vatRate*100,depositPercent:num($('depositPercent')),depositAmount,balancePercent:num($('balancePercent')),balanceAmount};
+}
+function validateRequired(actionName){
+  const missing=[];
+  if(!$('customer').value.trim()) missing.push('거래처명');
+  if(!$('quoteTitle').value.trim()) missing.push('견적명');
+  if(!$('memo').value.trim()) missing.push('비고');
+  const cards=itemCards();
+  if(!cards.length) missing.push('제품 정보');
+  cards.forEach((card,i)=>{
+    const no=i+1;
+    if(!card.querySelector('.itemName').value.trim()) missing.push(`제품 ${no} 아이템명`);
+    if(uncomma(card.querySelector('.price').value)==='' || num(card.querySelector('.price'))<=0) missing.push(`제품 ${no} 단가`);
+    if(uncomma(card.querySelector('.qty').value)==='' || num(card.querySelector('.qty'))<=0) missing.push(`제품 ${no} 수량`);
+    if(uncomma(card.querySelector('.exchangeRate').value)==='' || num(card.querySelector('.exchangeRate'))<=0) missing.push(`제품 ${no} 환율`);
+  });
+  if(missing.length){ alert(`${actionName}할 수 없습니다. 필수 기재 항목을 입력해주세요.\n- `+missing.join('\n- ')); return false; }
+  return true;
+}
+function quotePayload(){
+  const r=calcAll();
+  return {date:$('quoteDate').value||new Date().toISOString().slice(0,10),customer:$('customer').value.trim(),title:$('quoteTitle').value.trim(),memo:$('memo').value.trim(),costs:{chinaInland:uncomma($('chinaInland').value),oceanFreight:uncomma($('oceanFreight').value),marginRate:uncomma($('marginRate').value),customsFee:uncomma($('customsFee').value),domesticFreight:uncomma($('domesticFreight').value),vatRate:uncomma($('vatRate').value)},payment:{depositPercent:uncomma($('depositPercent').value),depositAmount:Math.round(r.depositAmount),depositMemo:$('depositMemo').value.trim(),balancePercent:uncomma($('balancePercent').value),balanceAmount:Math.round(r.balanceAmount),balanceMemo:$('balanceMemo').value.trim()},items:r.items,summary:r,updatedAt:new Date().toISOString(),updatedAtServer:serverTimestamp()};
+}
+async function saveQuote(){
+  if(!validateRequired('견적 저장') || !requireDb()) return;
+  const id = editQuoteId || crypto.randomUUID();
+  await setDoc(doc(db,'quotes',id), {...quotePayload(), id}, {merge:true});
+  editQuoteId = null;
+  alert('견적을 Firestore에 저장했습니다.');
+}
+function loadQuote(id){
+  const q=quotes.find(x=>x.id===id); if(!q) return;
+  editQuoteId=id;
+  $('quoteDate').value=q.date||new Date().toISOString().slice(0,10);
+  $('customer').value=q.customer||''; $('quoteTitle').value=q.title||''; $('memo').value=q.memo||'';
+  const c=q.costs||{};
+  ['chinaInland','oceanFreight','marginRate','customsFee','domesticFreight','vatRate'].forEach(k=>{if($(k)&&c[k]!==undefined)$(k).value=fmtInput(c[k])});
+  const pay=q.payment||{};
+  if(pay.depositPercent!==undefined)$('depositPercent').value=fmtInput(pay.depositPercent);
+  if(pay.depositMemo!==undefined)$('depositMemo').value=pay.depositMemo;
+  if(pay.balancePercent!==undefined)$('balancePercent').value=fmtInput(pay.balancePercent);
+  if(pay.balanceMemo!==undefined)$('balanceMemo').value=pay.balanceMemo;
+  $('itemsArea').innerHTML=''; itemSeq=0; (q.items||[]).forEach(addItem); if(!(q.items||[]).length)addItem();
+  showTab('calc'); calcAll();
+}
+async function delQuote(id){ if(requireDb() && confirm('이 견적을 삭제할까요?')) await deleteDoc(doc(db,'quotes',id)); }
+function resetCalc(){
+  editQuoteId=null; $('quoteDate').value=new Date().toISOString().slice(0,10); $('customer').value=''; $('quoteTitle').value=''; $('memo').value='';
+  ['chinaInland','oceanFreight','marginRate','customsFee','domesticFreight'].forEach(id=>$(id).value=0);
+  $('vatRate').value=10; $('depositPercent').value='30'; $('depositMemo').value=''; $('balancePercent').value='70'; $('balanceMemo').value='';
+  $('itemsArea').innerHTML=''; itemSeq=0; addItem(); calcAll();
+}
+function matchText(text,kw,mode){ text=String(text||'').toLowerCase().trim(); kw=String(kw||'').toLowerCase().trim(); if(!kw)return true; return mode==='exact'?text===kw:text.includes(kw); }
+function filteredQuotes(){
+  const from=$('qFrom').value,to=$('qTo').value,target=$('qTarget').value,mode=$('qMode').value,kw=$('qSearch').value;
+  const rows=quotes.filter(q=>{
+    if(from&&q.date<from)return false; if(to&&q.date>to)return false;
+    const itemNames=(q.items||[]).map(i=>i.itemName).join(' ');
+    if(target==='customer')return matchText(q.customer,kw,mode);
+    if(target==='item')return matchText(itemNames,kw,mode);
+    if(target==='memo')return matchText(q.memo,kw,mode);
+    return matchText([q.customer,q.title,itemNames,q.memo].join(' '),kw,mode);
+  });
+  const sort=$('qSort').value;
+  if(sort==='new')rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  if(sort==='old')rows.sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  if(sort==='customer')rows.sort((a,b)=>String(a.customer).localeCompare(String(b.customer),'ko'));
+  if(sort==='total')rows.sort((a,b)=>(b.summary?.total||0)-(a.summary?.total||0));
+  return rows;
+}
+function renderQuotes(){
+  const tb=$('quotesTable').querySelector('tbody'); tb.innerHTML='';
+  filteredQuotes().forEach(q=>{
+    const itemNames=(q.items||[]).map(i=>i.itemName||'-').join(', ');
+    tb.insertAdjacentHTML('beforeend',`<tr><td>${esc(q.date)}</td><td>${esc(q.customer||'-')}</td><td>${esc(q.title||'-')}</td><td>${esc(itemNames)}</td><td class="num">${money(q.summary?.total||0)}</td><td class="nowrap"><button type="button" class="btn small" onclick="loadQuote('${q.id}')">수정</button> <button type="button" class="btn danger small" onclick="delQuote('${q.id}')">삭제</button></td></tr>`);
+  });
+}
+function exportQuotes(){
+  const rows=[['날짜','거래처명','견적명','아이템명','총액','비고']];
+  filteredQuotes().forEach(q=>rows.push([q.date,q.customer,q.title,(q.items||[]).map(i=>i.itemName).join('|'),Math.round(q.summary?.total||0),q.memo]));
+  const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='견적저장.csv'; a.click();
+}
+async function clearAllQuotes(){
+  if(!requireDb() || !confirm('저장된 견적을 모두 삭제할까요?')) return;
+  const snap=await getDocs(collection(db,'quotes'));
+  const batch=writeBatch(db);
+  snap.forEach(d=>batch.delete(d.ref));
+  await batch.commit();
+}
+async function saveHs(){
+  if(!requireDb()) return;
+  const code=cleanHs($('hsCode').value); if(!code){alert('HS CODE를 입력해주세요.');return;}
+  const h={code,itemName:$('hsItemName').value.trim(),origin:$('hsOrigin').value.trim(),dutyRate:num($('hsDutyRate')),updatedAt:new Date().toISOString(),updatedAtServer:serverTimestamp()};
+  await setDoc(doc(db,'hsCodes',code), h, {merge:true});
+  clearHsForm();
+}
+function clearHsForm(){ $('hsCode').value=''; $('hsItemName').value=''; $('hsOrigin').value=''; $('hsDutyRate').value=''; }
+function editHs(code){ const h=hsList.find(x=>cleanHs(x.code)===cleanHs(code)); if(!h)return; $('hsCode').value=h.code; $('hsItemName').value=h.itemName||''; $('hsOrigin').value=h.origin||''; $('hsDutyRate').value=fmtInput(h.dutyRate); }
+async function delHs(code){ if(requireDb() && confirm('삭제할까요?')) await deleteDoc(doc(db,'hsCodes',cleanHs(code))); }
+function renderHs(){
+  const kw=$('hsSearch').value.trim(); const mode=$('hsSearchMode').value; const tb=$('hsTable').querySelector('tbody'); tb.innerHTML='';
+  const list=hsList.filter(h=>{ if(!kw)return true; const hs=cleanHs(kw); if(hs)return mode==='exact'?cleanHs(h.code)===hs:cleanHs(h.code).includes(hs); return matchText([h.itemName,h.origin].join(' '),kw,mode); });
+  list.forEach(h=>tb.insertAdjacentHTML('beforeend',`<tr><td>${esc(h.code)}</td><td>${esc(h.itemName||'-')}</td><td>${esc(h.origin||'-')}</td><td>${h.dutyRate||0}%</td><td class="nowrap"><button type="button" class="btn small" onclick="editHs('${h.code}')">수정</button> <button type="button" class="btn danger small" onclick="delHs('${h.code}')">삭제</button></td></tr>`));
+}
+function costDisplay(amount){ return Number(amount||0)===0 ? '단가에 포함' : money(amount)+' KRW'; }
+function exportPdf(){
+  const printWindow=window.open('','_blank');
+  if(!validateRequired('PDF 내보내기')){ if(printWindow) printWindow.close(); return; }
+  const r=calcAll();
+  const today=$('quoteDate').value||new Date().toISOString().slice(0,10);
+  const costRows=[['중국 내륙 운송료', costDisplay(r.china)],['해운비', costDisplay(r.ocean)],['통관부대비', costDisplay(r.customsFee)],['국내 내륙운송료', costDisplay(r.domestic)]];
+  const itemRows=(r.items||[]).map(it=>`<tr><td>${esc(it.itemName||'-')}</td><td>${fmtInput(it.qty)} ${esc(it.unit||'')}</td><td class="num">${money(it.amount)}</td><td class="num">${money(it.vatIncludedUnit||0)}</td></tr>`).join('');
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>계산 결과</title><style>body{font-family:Arial,'Malgun Gothic',sans-serif;color:#111827;margin:28px;font-size:13px}.head{display:flex;align-items:center;gap:14px;border-bottom:2px solid #111827;padding-bottom:12px;margin-bottom:18px}.head img{height:54px}.head h1{margin:0;font-size:22px}.muted{color:#6b7280;font-size:12px}table{width:100%;border-collapse:collapse;margin:12px 0 18px}th,td{border:1px solid #d1d5db;padding:8px;text-align:left}th{background:#f3f4f6}.num{text-align:right}.total{font-weight:800;background:#eff6ff}.small{font-size:12px;color:#6b7280}@media print{button{display:none}body{margin:18px}}</style></head><body><div class="head"><img src="ing_logo.jpg"><div><h1>공장도착 원가 계산 결과</h1><div class="muted">Copyright © ING CO., LTD. All rights reserved.</div></div></div><table><tr><th>견적일자</th><td>${esc(today)}</td><th>거래처명</th><td>${esc($('customer').value||'-')}</td></tr><tr><th>견적명</th><td>${esc($('quoteTitle').value||'-')}</td><th>비고</th><td>${esc($('memo').value||'-')}</td></tr></table><h2>계산 결과</h2><table><tr><th>관세</th><td class="num">${money(r.duty)} KRW</td></tr><tr><th>수입 비용</th><td class="num">${money(r.importCost)} KRW</td></tr><tr><th>커미션</th><td class="num">${money(r.commission)} KRW</td></tr><tr><th>공급가액</th><td class="num">${money(r.supply)} KRW</td></tr><tr><th>세액</th><td class="num">${money(r.vat)} KRW</td></tr><tr class="total"><th>총 공장도착가</th><td class="num">${money(r.total)} KRW</td></tr></table><h2>수입비용 상세</h2><table><tr><th>항목</th><th>금액</th></tr>${costRows.map(row=>`<tr><td>${row[0]}</td><td class="num">${row[1]}</td></tr>`).join('')}</table><div class="small">금액이 0으로 기재된 항목은 단가에 포함된 것으로 표시했습니다.</div><h2>아이템별 부가세 포함 단가</h2><table><tr><th>아이템</th><th>수량</th><th class="num">제품금액</th><th class="num">부가세 포함 단가</th></tr>${itemRows}</table><h2>결제 조건</h2><table><tr><th>계약금</th><td>${fmtInput($('depositPercent').value||0)}% / ${money(r.depositAmount)} KRW</td><th>비고</th><td>${esc($('depositMemo').value||'-')}</td></tr><tr><th>잔금</th><td>${fmtInput($('balancePercent').value||0)}% / ${money(r.balanceAmount)} KRW</td><th>비고</th><td>${esc($('balanceMemo').value||'-')}</td></tr></table><button onclick="window.print()">PDF로 저장 / 인쇄</button></body></html>`;
+  printWindow.document.open(); printWindow.document.write(html); printWindow.document.close();
+  setTimeout(()=>printWindow.print(),400);
+}
+function calcBoard(){
+  const w=num($('bdW')),h=num($('bdH')),t=num($('bdT'));
+  const cbm=w/1000*h/1000*t/1000; $('bdCbm').value=cbm?cbm.toFixed(6):'';
+  const m3=num($('bdM3Price')); const sheet=num($('bdSheetInput'));
+  $('bdSheetPrice').value=cbm?Number((m3*cbm).toFixed(2)).toLocaleString('ko-KR'):'';
+  $('bdM3Result').value=cbm?Number((sheet/cbm).toFixed(2)).toLocaleString('ko-KR'):'';
+}
+function subscribeFirestore(){
+  if(!configured()){ setSync('Firebase 설정 필요', true); return; }
+  try{
+    db=getFirestore(initializeApp(firebaseConfig));
+    onSnapshot(query(collection(db,'quotes'), orderBy('date','desc')), snap=>{ quotes=snap.docs.map(d=>({id:d.id,...d.data()})); renderQuotes(); setSync('Firestore 동기화됨'); }, err=>setSync('견적 동기화 오류', true));
+    onSnapshot(query(collection(db,'hsCodes'), orderBy('code','asc')), snap=>{ hsList=snap.docs.map(d=>({id:d.id,...d.data()})); renderHs(); }, err=>setSync('HS 동기화 오류', true));
+  }catch(e){ setSync('Firebase 연결 실패', true); console.error(e); }
+}
+function init(){
+  $('quoteDate').value = new Date().toISOString().slice(0,10);
+  addItem();
+  calcBoard();
+  subscribeFirestore();
+}
 
-  <section id="calc" class="section active">
-    <div class="grid">
-      <div>
-        <div class="card">
-          <h2>견적 기본 정보</h2>
-          <div class="row3">
-            <div><label>견적일자</label><input id="quoteDate" type="date"></div>
-            <div><label>거래처명 / 단가 제출처 *</label><input id="customer" placeholder="예: 상원보드"></div>
-            <div><label>견적명 *</label><input id="quoteTitle" placeholder="예: 서랍장 2차"></div>
-          </div>
-          <div><label>비고 *</label><textarea id="memo" placeholder="인코텀즈 조건, 도착지 정보 및 특이사항 입력"></textarea></div>
-        </div>
-
-        <div class="card">
-          <div class="actions" style="margin-bottom:12px">
-            <h2 style="margin:0">제품 정보</h2>
-            <button type="button" class="btn primary right" onclick="addItem()">+ 제품 정보 추가</button>
-          </div>
-          <div id="itemsArea"></div>
-          <div class="actions" style="margin-top:8px">
-            <button type="button" class="btn" onclick="calcAll()">다시 계산</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>수입비용 입력</h2>
-          <div class="row">
-            <div><label>중국 내륙운송료 KRW</label><input id="chinaInland" type="text" inputmode="decimal" value="0" oninput="formatNumInput(this);calcAll()"></div>
-            <div><label>해운비 KRW</label><input id="oceanFreight" type="text" inputmode="decimal" value="0" oninput="formatNumInput(this);calcAll()"></div>
-            <div><label>통관부대비 KRW</label><input id="customsFee" type="text" inputmode="decimal" value="0" oninput="formatNumInput(this);calcAll()"></div>
-            <div><label>국내 내륙운송료 KRW</label><input id="domesticFreight" type="text" inputmode="decimal" value="0" oninput="formatNumInput(this);calcAll()"></div>
-          </div>
-          <div class="row">
-            <div><label>마진율 / 커미션 %</label><input id="marginRate" type="text" inputmode="decimal" value="0" oninput="formatNumInput(this);calcAll()"></div>
-            <div><label>부가세율 %</label><input id="vatRate" type="text" inputmode="decimal" value="10" oninput="formatNumInput(this);calcAll()"></div>
-            <div></div><div></div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card">
-          <h2>계산 결과</h2>
-          <div class="result">
-            <div class="box warn"><b>관세</b><span id="rDuty">0</span></div>
-            <div class="box"><b>수입 비용</b><span id="rImportCost">0</span></div>
-            <div class="box green"><b>커미션</b><span id="rCommission">0</span></div>
-            <div class="box"><b>공급가액</b><span id="rSupply">0</span></div>
-            <div class="box"><b>세액</b><span id="rVat">0</span></div>
-            <div class="box total"><b>총 공장도착가</b><span id="rTotal">0</span></div>
-          </div>
-          <div class="actions" style="margin-top:14px">
-            <button type="button" class="btn primary" onclick="saveQuote()">견적 저장</button>
-            <button type="button" class="btn" onclick="resetCalc()">새 견적</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>아이템별 부가세 포함 단가</h2>
-          <div style="overflow:auto">
-            <table id="itemResult"><thead><tr><th>아이템</th><th>수량</th><th>단위</th><th class="num">제품금액</th><th class="num">부가세포함 총액</th><th class="num">부가세포함 단가</th></tr></thead><tbody></tbody></table>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>PDF 내보내기 조건</h2>
-          <div class="row2">
-            <div><label>계약금 %</label><input id="depositPercent" type="text" inputmode="decimal" value="30" oninput="formatNumInput(this);calcAll()"></div>
+Object.assign(window,{showTab,formatNumInput,addItem,toggleCustomUnit,calcAll,saveQuote,resetCalc,renderQuotes,loadQuote,delQuote,exportQuotes,clearAllQuotes,saveHs,clearHsForm,editHs,delHs,renderHs,exportPdf,calcBoard});
+init();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.log('SW registration failed',e);});});}</script>
+</body>
+</html>

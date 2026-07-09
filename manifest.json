@@ -1,0 +1,14 @@
+{
+  "name": "공장도착 원가 계산기",
+  "short_name": "원가계산기",
+  "description": "ING CO., LTD 공장도착 원가 계산기",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
